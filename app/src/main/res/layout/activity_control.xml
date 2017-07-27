@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.dfrobot.angelo.blunobasicdemo.ControlActivity">
+
+    <Switch
+        android:id="@+id/switch1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:layout_editor_absoluteX="233dp"
+        tools:layout_editor_absoluteY="345dp"
+        android:layout_marginBottom="46dp"
+        android:layout_above="@+id/switch2"
+        android:layout_alignStart="@+id/switch2" />
+
+    <Switch
+        android:id="@+id/switch2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:layout_editor_absoluteX="233dp"
+        tools:layout_editor_absoluteY="74dp"
+        android:layout_marginEnd="27dp"
+        android:layout_above="@+id/buttonHome"
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="17dp" />
+
+    <RadioButton
+        android:id="@+id/radioButton4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Slow"
+        tools:layout_editor_absoluteX="144dp"
+        tools:layout_editor_absoluteY="127dp"
+        android:layout_marginBottom="43dp"
+        android:layout_above="@+id/radioButton6"
+        android:layout_alignEnd="@+id/radioButton5" />
+
+    <RadioButton
+        android:id="@+id/radioButton6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Fast"
+        tools:layout_editor_absoluteX="16dp"
+        tools:layout_editor_absoluteY="267dp"
+        android:layout_above="@+id/switch1"
+        android:layout_alignEnd="@+id/radioButton4"
+        android:layout_marginBottom="28dp" />
+
+    <RadioButton
+        android:id="@+id/radioButton5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Auto"
+        tools:layout_editor_absoluteX="16dp"
+        tools:layout_editor_absoluteY="127dp"
+        android:layout_marginStart="32dp"
+        android:layout_above="@+id/radioButton4"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="29dp" />
+
+    <Button
+        android:id="@+id/buttonHome"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Home"
+        tools:layout_editor_absoluteX="147dp"
+        tools:layout_editor_absoluteY="409dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="16dp" />
+</RelativeLayout>

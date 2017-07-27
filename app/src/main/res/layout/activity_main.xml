@@ -11,29 +11,6 @@
     android:focusableInTouchMode="true">
 
     <Button
-        android:id="@+id/buttonSerialSend"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/serialSendText"
-        android:layout_alignRight="@+id/serialSendText"
-        android:text="Send Data" />
-
-    <EditText
-        android:id="@+id/serialSendText"
-        android:layout_width="310dp"
-        android:layout_height="40dp"
-        android:layout_below="@+id/buttonScan"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="22dp"
-        android:background="#555555"
-        android:bufferType="editable"
-        android:ems="10"
-        android:inputType="text"
-        android:text="Data sending Area"
-        android:textColor="#999999"
-        android:textSize="20dip" />
-
-    <Button
         android:id="@+id/buttonScan"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -72,18 +49,17 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="TextView"
-        android:layout_alignBaseline="@+id/textView8"
-        android:layout_alignBottom="@+id/textView8"
-        android:layout_centerHorizontal="true" />
+        android:layout_above="@+id/textView"
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="23dp" />
 
     <Button
         android:id="@+id/buttonMap"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Map"
-        android:layout_alignParentBottom="true"
-        android:layout_alignStart="@+id/buttonSerialSend"
-        android:layout_marginStart="16dp" />
+        android:layout_alignTop="@+id/toggleUVC"
+        android:layout_alignEnd="@+id/buttonControl" />
 
     <TextView
         android:id="@+id/textView6"
@@ -97,10 +73,10 @@
         android:id="@+id/textView8"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="25dp"
         android:text="Quality"
-        android:layout_below="@+id/serialSendText"
-        />
+        android:layout_alignBaseline="@+id/textView4"
+        android:layout_alignBottom="@+id/textView4"
+        android:layout_alignParentStart="true" />
 
     <TextView
         android:id="@+id/textView9"
@@ -125,31 +101,61 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="UVC"
-        android:layout_above="@+id/buttonMap"
-        android:layout_alignEnd="@+id/textView4" />
+        android:layout_above="@+id/textView4"
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="28dp" />
 
     <RadioGroup
+        android:id="@+id/fanSpeedRadioGroup"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/textView3"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/textView3">
+        android:layout_marginTop="10dp">
         <RadioButton
             android:id="@+id/radioButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="29dp"
-            android:text="Slow"
+            android:text="Auto"
             android:layout_below="@+id/textView6"
             android:layout_alignParentStart="true" />
+
+        <RadioButton
+            android:id="@+id/radioButton2"
+            android:layout_width="wrap_content"
+            android:layout_height="39dp"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/radioButton"
+            android:layout_marginTop="29dp"
+            android:text="Slow" />
 
         <RadioButton
             android:id="@+id/radioButton3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Fast"
-            android:layout_below="@+id/radioButton"
-            android:layout_alignParentStart="true" />
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/radioButton2"
+            android:text="Fast" />
+
     </RadioGroup>
+
+    <ToggleButton
+        android:id="@+id/toggleDevice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="ToggleButton"
+        android:layout_alignBottom="@+id/buttonControl"
+        android:layout_alignParentEnd="true" />
+
+    <Button
+        android:id="@+id/buttonControl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Control"
+        android:layout_alignParentTop="true"
+        android:layout_toStartOf="@+id/textView4"
+        android:layout_marginEnd="21dp" />
 
 
 </RelativeLayout>

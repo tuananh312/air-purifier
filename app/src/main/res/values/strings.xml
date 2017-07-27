@@ -36,4 +36,5 @@
     </string>
     <string name="title_activity_maps">Map</string>
     <string name="str_btn_draw">Draw Route</string>
+    <string name="title_activity_control">ControlActivity</string>
 </resources>
