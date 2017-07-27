@@ -164,26 +164,26 @@ public class MainActivity  extends BlunoLibrary {
 
 
 
-		//Get database reference
-		databasePastData = FirebaseDatabase.getInstance().getReference("past_data");
-
-		FirebaseDatabase database = FirebaseDatabase.getInstance();
-		DatabaseReference myRef = database.getReference("message");
-		myRef.setValue("Hello World");
-
-		myRef.addValueEventListener(new ValueEventListener() {
-			@Override
-			public void onDataChange(DataSnapshot dataSnapshot) {
-				String value = dataSnapshot.getValue(String.class);
-				Log.d(TAG,"Value is: " +value);
-			}
-
-			@Override
-			public void onCancelled(DatabaseError databaseError) {
-				Log.w(TAG,"Failed to read value.", databaseError.toException());
-
-			}
-		});
+//		//Get database reference
+//		databasePastData = FirebaseDatabase.getInstance().getReference("past_data");
+//
+//		FirebaseDatabase database = FirebaseDatabase.getInstance();
+//		DatabaseReference myRef = database.getReference("message");
+//		myRef.setValue("Hello World");
+//
+//		myRef.addValueEventListener(new ValueEventListener() {
+//			@Override
+//			public void onDataChange(DataSnapshot dataSnapshot) {
+//				String value = dataSnapshot.getValue(String.class);
+//				Log.d(TAG,"Value is: " +value);
+//			}
+//
+//			@Override
+//			public void onCancelled(DatabaseError databaseError) {
+//				Log.w(TAG,"Failed to read value.", databaseError.toException());
+//
+//			}
+//		});
 
 
 	}

@@ -36,7 +36,7 @@ public abstract class BlunoLibrary  extends Activity {
 
 	
 //	public BlunoLibrary(Context theContext) {
-//		
+//
 //		mainContext=theContext;
 //	}
 
