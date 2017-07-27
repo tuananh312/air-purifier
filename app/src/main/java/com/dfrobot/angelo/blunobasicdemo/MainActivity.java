@@ -1,5 +1,6 @@
 package com.dfrobot.angelo.blunobasicdemo;
 
+import android.app.Activity;
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationListener;
@@ -7,26 +8,42 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.content.Intent;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.ScrollView;
+import android.widget.RadioButton;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.ToggleButton;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import static android.content.ContentValues.TAG;
+
 
 public class MainActivity  extends BlunoLibrary {
 	private Button buttonScan;
 	private Button buttonSerialSend;
 	private EditText serialSendText;
-	//private TextView serialReceivedText;
 	private TextView fanSpeedTextView;
 	private TextView temperatureTextView;
 	private TextView humidityTextView;
 	private TextView vocTextView;
-	private Button buttonGPS;
-	private TextView gpsTextView;
-	private LocationManager locationManager;
-	private LocationListener locationListener;
+	private Button buttonMap;
+	private Button buttonControl;
+	private DatabaseReference databasePastData;
+	private ToggleButton toggleUVC;
+	private RadioButton fanspeed1;
+	private RadioButton fanspeed2;
+	private BlunoLibrary blunoLibrary;
+
 
 
 
@@ -39,7 +56,6 @@ public class MainActivity  extends BlunoLibrary {
 
         serialBegin(115200);													//set the Uart Baudrate on BLE chip to 115200
 
-        //serialReceivedText=(TextView) findViewById(R.id.serialReveicedText);	//initial the EditText of the received data
         serialSendText=(EditText) findViewById(R.id.serialSendText);			//initial the EditText of the sending data
 
         buttonSerialSend = (Button) findViewById(R.id.buttonSerialSend);		//initial the button for sending the data
@@ -64,35 +80,84 @@ public class MainActivity  extends BlunoLibrary {
 			}
 		});
 
-		buttonGPS = (Button) findViewById(R.id.button);
-		gpsTextView = (TextView) findViewById(R.id.textView5);
+		//Navigation to map
+		buttonMap = (Button) findViewById(R.id.buttonMap);
+		buttonMap.setOnClickListener(new OnClickListener() {
 
-		locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-		locationListener = new LocationListener() {
 			@Override
-			public void onLocationChanged(Location location) {
-				gpsTextView.append("\n"+location.getLatitude()+" "+location.getLongitude());
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
 
+				navigateMapView();
+			}
+		});
+
+		//Navigation to controls
+//		buttonControl = (Button) findViewById(R.id.buttonControl);
+//		buttonControl.setOnClickListener(new OnClickListener() {
+//			@Override
+//			public void onClick(View view) {
+//				navigateControlView();
+//			}
+//		});
+
+		//UVC control
+		toggleUVC = (ToggleButton) findViewById(R.id.toggleUVC);
+		toggleUVC.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+				if (b) {
+					//send data number turn on UVC
+					serialSend("8");
+					Toast.makeText(getApplicationContext(), "Turning on UVC", Toast.LENGTH_SHORT).show();
+				} else {
+					//send data number turn off UVC
+					serialSend("9");
+					Toast.makeText(getApplicationContext(), "Turning off UVC", Toast.LENGTH_SHORT).show();
+				}
+			}
+		});
+
+
+		//Fanspeed control
+		fanspeed1 = (RadioButton) findViewById(R.id.radioButton);
+		fanspeed1.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				onRadioButtonClicked(view);
+			}
+		});
+
+		fanspeed2 = (RadioButton) findViewById(R.id.radioButton3);
+		fanspeed2.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				onRadioButtonClicked(view);
+			}
+		});
+
+
+
+		//Get database reference
+		databasePastData = FirebaseDatabase.getInstance().getReference("past_data");
+
+		FirebaseDatabase database = FirebaseDatabase.getInstance();
+		DatabaseReference myRef = database.getReference("message");
+		myRef.setValue("Hello World");
+
+		myRef.addValueEventListener(new ValueEventListener() {
+			@Override
+			public void onDataChange(DataSnapshot dataSnapshot) {
+				String value = dataSnapshot.getValue(String.class);
+				Log.d(TAG,"Value is: " +value);
 			}
 
 			@Override
-			public void onStatusChanged(String s, int i, Bundle bundle) {
+			public void onCancelled(DatabaseError databaseError) {
+				Log.w(TAG,"Failed to read value.", databaseError.toException());
 
 			}
-
-			@Override
-			public void onProviderEnabled(String s) {
-
-			}
-
-			@Override
-			public void onProviderDisabled(String s) {
-				Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-				startActivity(intent);
-
-			}
-		};
-		configureButton();
+		});
 
 
 	}
@@ -124,7 +189,7 @@ public class MainActivity  extends BlunoLibrary {
     
 	@Override
     protected void onDestroy() {
-        super.onDestroy();	
+        super.onDestroy();
         onDestroyProcess();														//onDestroy Process by BlunoLibrary
     }
 
@@ -153,34 +218,63 @@ public class MainActivity  extends BlunoLibrary {
 
 	@Override
 	public void onSerialReceived(String receivedString) {							//Once connection data received, this function will be called
-		// TODO Auto-generated method stub
-		//serialReceivedText.append(receivedString);
-		//append the text into the EditText
-		String[] sensorData = receivedString.split("\n");
-		updateTextView(sensorData);
-		//The Serial data from the BLUNO may be sub-packaged, so using a buffer to hold the String is a good choice.
-		//((ScrollView)serialReceivedText.getParent()).fullScroll(View.FOCUS_DOWN);
+		try{
+
+			//String[] sensorDataList = receivedString.split(";");
+			String[] sensorData = receivedString.split(",");
+			Thread.sleep(1000);
+			updateTextView(sensorData);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		String id = databasePastData.push().getKey();
+//		PastData pastdata = new PastData(id,sensorData[1],sensorData[2],sensorData[3]);
+//		databasePastData.child(id).setValue(pastdata);
 	}
 
-	public void updateTextView(String[] updates) {
+	public void updateTextView(String[] updates) { //update text view
 		fanSpeedTextView = (TextView) findViewById(R.id.textView);
-		fanSpeedTextView.setText(updates[0]);
+		String fanSpeed = updates[0] + " *C";
+		fanSpeedTextView.setText(fanSpeed);
 		temperatureTextView = (TextView) findViewById(R.id.textView2);
-		temperatureTextView.setText(updates[1]);
+		String temperature = updates[1] + " %";
+		temperatureTextView.setText(temperature);
 		humidityTextView = (TextView) findViewById(R.id.textView3);
 		humidityTextView.setText(updates[2]);
 		vocTextView = (TextView) findViewById(R.id.textView4);
 		vocTextView.setText(updates[3]);
 	}
 
-	private void configureButton(){
-		buttonGPS.setOnClickListener(new View.OnClickListener(){
-			@Override
-			public void onClick(View view){
-				locationManager.requestLocationUpdates("gps",5000,0,locationListener);
-			}
-		});
+	public void onRadioButtonClicked(View view) {
+		// Is the button now checked?
+		boolean checked = ((RadioButton) view).isChecked();
 
+		// Check which radio button was clicked
+		switch(view.getId()) {
+			case R.id.radioButton:
+				if (checked)
+					// Fanspeed Slow
+					serialSend("10");
+					Toast.makeText(getApplicationContext(), "Fanspeed Slow", Toast.LENGTH_SHORT).show();
+					break;
+			case R.id.radioButton3:
+				if (checked)
+					// Fanspeed High
+					serialSend("11");
+					Toast.makeText(getApplicationContext(), "Fanspeed Fast", Toast.LENGTH_SHORT).show();
+					break;
+		}
+	}
+
+
+	public void navigateMapView(){
+		Intent intent = new Intent(this, MapsActivity.class);
+		startActivity(intent);
+	}
+	public void navigateControlView(){
+		Intent intent = new Intent(this, MapsActivity.class);
+		startActivity(intent);
 	}
 
 }

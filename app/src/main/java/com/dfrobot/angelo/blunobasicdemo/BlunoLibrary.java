@@ -3,6 +3,7 @@ package com.dfrobot.angelo.blunobasicdemo;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.app.Application;
 import android.os.Handler;
 import android.os.IBinder;
 import android.annotation.SuppressLint;
@@ -29,7 +30,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public abstract  class BlunoLibrary  extends Activity{
+public abstract class BlunoLibrary  extends Activity {
 
 	private Context mainContext=this;
 
@@ -325,7 +326,12 @@ public abstract  class BlunoLibrary  extends Activity{
 					}
             	}
             	else if (mSCharacteristic==mSerialPortCharacteristic) {
-            		onSerialReceived(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
+					try {
+						onSerialReceived(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
+						Thread.sleep(100);
+					} catch (InterruptedException e){
+						e.printStackTrace();
+					}
 				}
             	
             
