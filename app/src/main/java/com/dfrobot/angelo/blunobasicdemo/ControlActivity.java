@@ -21,6 +21,7 @@ public class ControlActivity extends BlunoLibrary {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_control);
 
+
         buttonHome = (Button) findViewById(R.id.buttonHome);
         buttonHome.setOnClickListener(new View.OnClickListener() {
             @Override
