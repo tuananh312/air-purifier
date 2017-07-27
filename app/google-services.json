@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "5768328907",
+    "firebase_url": "https://air-purifier-3e2c8.firebaseio.com",
+    "project_id": "air-purifier-3e2c8",
+    "storage_bucket": "air-purifier-3e2c8.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:5768328907:android:ffe29b14450b090f",
+        "android_client_info": {
+          "package_name": "com.dfrobot.angelo.blunobasicdemo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "5768328907-j0nbvilrq5r90pfhtg4ltvnhktmmv3v9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dfrobot.angelo.blunobasicdemo",
+            "certificate_hash": "2f9e871a10640d90736e6d30da743605a1ed39dc"
+          }
+        },
+        {
+          "client_id": "5768328907-34evhoi0q4a4k9p31e74o5vtbo133r79.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCh-MXDZtj4k3keRzLcZp4T-PZA-4OtGJQ"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "5768328907-34evhoi0q4a4k9p31e74o5vtbo133r79.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
