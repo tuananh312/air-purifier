@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -32,17 +33,25 @@ public class MainActivity  extends BlunoLibrary {
 	private Button buttonScan;
 	private Button buttonSerialSend;
 	private EditText serialSendText;
-	private TextView fanSpeedTextView;
 	private TextView temperatureTextView;
 	private TextView humidityTextView;
+	private TextView dustTextView;
 	private TextView vocTextView;
 	private Button buttonMap;
 	private Button buttonControl;
 	private DatabaseReference databasePastData;
 	private ToggleButton toggleUVC;
+	private ToggleButton toggleDevice;
+	private RadioGroup fanSpeedRadioGroup;
 	private RadioButton fanspeed1;
 	private RadioButton fanspeed2;
-	private BlunoLibrary blunoLibrary;
+	private RadioButton fanspeed3;
+	private String batteryRemaining;
+	private String filterReplacement;
+	private int deviceState = 1;
+	private int fanSpeedState = 0;
+	private int UVCState = 0;
+
 
 
 
@@ -93,13 +102,13 @@ public class MainActivity  extends BlunoLibrary {
 		});
 
 		//Navigation to controls
-//		buttonControl = (Button) findViewById(R.id.buttonControl);
-//		buttonControl.setOnClickListener(new OnClickListener() {
-//			@Override
-//			public void onClick(View view) {
-//				navigateControlView();
-//			}
-//		});
+		buttonControl = (Button) findViewById(R.id.buttonControl);
+		buttonControl.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				navigateControlView();
+			}
+		});
 
 		//UVC control
 		toggleUVC = (ToggleButton) findViewById(R.id.toggleUVC);
@@ -108,12 +117,29 @@ public class MainActivity  extends BlunoLibrary {
 			public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
 				if (b) {
 					//send data number turn on UVC
-					serialSend("8");
+					serialSend("4");
 					Toast.makeText(getApplicationContext(), "Turning on UVC", Toast.LENGTH_SHORT).show();
 				} else {
 					//send data number turn off UVC
-					serialSend("9");
+					serialSend("5");
 					Toast.makeText(getApplicationContext(), "Turning off UVC", Toast.LENGTH_SHORT).show();
+				}
+			}
+		});
+
+		//Device control
+		toggleDevice = (ToggleButton) findViewById(R.id.toggleDevice);
+		toggleDevice.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+				if (b) {
+					//send data number turn on device
+					serialSend("/");
+					Toast.makeText(getApplicationContext(), "Turning on device", Toast.LENGTH_SHORT).show();
+				} else {
+					//send data number turn off device
+					serialSend("0");
+					Toast.makeText(getApplicationContext(), "Turning off device", Toast.LENGTH_SHORT).show();
 				}
 			}
 		});
@@ -128,13 +154,24 @@ public class MainActivity  extends BlunoLibrary {
 			}
 		});
 
-		fanspeed2 = (RadioButton) findViewById(R.id.radioButton3);
+		fanspeed2 = (RadioButton) findViewById(R.id.radioButton2);
 		fanspeed2.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View view) {
 				onRadioButtonClicked(view);
 			}
 		});
+
+		fanspeed3 = (RadioButton) findViewById(R.id.radioButton3);
+		fanspeed3.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				onRadioButtonClicked(view);
+			}
+		});
+
+		fanSpeedRadioGroup = (RadioGroup) findViewById(R.id.fanSpeedRadioGroup);
+
 
 
 
@@ -220,7 +257,6 @@ public class MainActivity  extends BlunoLibrary {
 	public void onSerialReceived(String receivedString) {							//Once connection data received, this function will be called
 		try{
 
-			//String[] sensorDataList = receivedString.split(";");
 			String[] sensorData = receivedString.split(",");
 			Thread.sleep(1000);
 			updateTextView(sensorData);
@@ -234,16 +270,43 @@ public class MainActivity  extends BlunoLibrary {
 	}
 
 	public void updateTextView(String[] updates) { //update text view
-		fanSpeedTextView = (TextView) findViewById(R.id.textView);
-		String fanSpeed = updates[0] + " *C";
-		fanSpeedTextView.setText(fanSpeed);
-		temperatureTextView = (TextView) findViewById(R.id.textView2);
-		String temperature = updates[1] + " %";
+		temperatureTextView = (TextView) findViewById(R.id.textView);
+		String temperature = updates[0] + " *C";
 		temperatureTextView.setText(temperature);
-		humidityTextView = (TextView) findViewById(R.id.textView3);
-		humidityTextView.setText(updates[2]);
+		humidityTextView = (TextView) findViewById(R.id.textView2);
+		String humidity = updates[1] + " %";
+		humidityTextView.setText(humidity);
+		dustTextView = (TextView) findViewById(R.id.textView3);
+		dustTextView.setText(updates[2]);
 		vocTextView = (TextView) findViewById(R.id.textView4);
 		vocTextView.setText(updates[3]);
+		batteryRemaining = updates[4];
+		filterReplacement = updates[5];
+		deviceState = Integer.parseInt(updates[6]);
+		fanSpeedState = Integer.parseInt(updates[7]);
+		UVCState = Integer.parseInt(updates[8]);
+
+		if (fanSpeedState == 0) {
+			fanspeed1.setChecked(true);
+		} else if (fanSpeedState == 1) {
+			fanspeed2.setChecked(true);
+		} else if (fanSpeedState == 2){
+			fanspeed3.setChecked(true);
+		}
+
+		if(deviceState == 1) {
+			toggleDevice.setChecked(true);
+		} else if (deviceState == 0) {
+			toggleDevice.setChecked(false);
+		}
+
+		if(UVCState == 1) {
+			toggleUVC.setChecked(true);
+		} else if (UVCState == 0) {
+			toggleUVC.setChecked(false);
+		}
+
+
 	}
 
 	public void onRadioButtonClicked(View view) {
@@ -254,14 +317,22 @@ public class MainActivity  extends BlunoLibrary {
 		switch(view.getId()) {
 			case R.id.radioButton:
 				if (checked)
+					// Fanspeed Auto
+					serialSend("1");
+					Toast.makeText(getApplicationContext(), "Fanspeed Auto", Toast.LENGTH_SHORT).show();
+					break;
+
+			case R.id.radioButton2:
+				if (checked)
 					// Fanspeed Slow
-					serialSend("10");
+					serialSend("2");
 					Toast.makeText(getApplicationContext(), "Fanspeed Slow", Toast.LENGTH_SHORT).show();
 					break;
+
 			case R.id.radioButton3:
 				if (checked)
 					// Fanspeed High
-					serialSend("11");
+					serialSend("3");
 					Toast.makeText(getApplicationContext(), "Fanspeed Fast", Toast.LENGTH_SHORT).show();
 					break;
 		}
@@ -273,7 +344,7 @@ public class MainActivity  extends BlunoLibrary {
 		startActivity(intent);
 	}
 	public void navigateControlView(){
-		Intent intent = new Intent(this, MapsActivity.class);
+		Intent intent = new Intent(this, ControlActivity.class);
 		startActivity(intent);
 	}
 

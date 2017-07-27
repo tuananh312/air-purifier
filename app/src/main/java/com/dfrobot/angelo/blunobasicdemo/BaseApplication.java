@@ -7,22 +7,11 @@ import android.app.Application;
  */
 
 public class BaseApplication extends Application {
-    public BlunoLibrary blunoLibrary;
     @Override
     public void onCreate()
     {
         super.onCreate();
-        blunoLibrary = new BlunoLibrary() {
-            @Override
-            public void onConectionStateChange(connectionStateEnum theconnectionStateEnum) {
 
-            }
-
-            @Override
-            public void onSerialReceived(String theString) {
-
-            }
-        };
     }
 
 }
