@@ -29,10 +29,8 @@ import com.google.firebase.database.ValueEventListener;
 import static android.content.ContentValues.TAG;
 
 
-public class MainActivity  extends BlunoLibrary {
+public class MainActivity extends BlunoLibrary {
 	private Button buttonScan;
-	private Button buttonSerialSend;
-	private EditText serialSendText;
 	private TextView temperatureTextView;
 	private TextView humidityTextView;
 	private TextView dustTextView;
@@ -51,6 +49,11 @@ public class MainActivity  extends BlunoLibrary {
 	private int deviceState = 1;
 	private int fanSpeedState = 0;
 	private int UVCState = 0;
+	public static String[] sensorData;
+	private String temperature = "-";
+	private String humidity = "-";
+	private String dust = "-";
+	private String voc = "-";
 
 
 
@@ -60,12 +63,12 @@ public class MainActivity  extends BlunoLibrary {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+
+
         onCreateProcess();														//onCreate Process by BlunoLibrary
 
 
         serialBegin(115200);													//set the Uart Baudrate on BLE chip to 115200
-
-        serialSendText=(EditText) findViewById(R.id.serialSendText);			//initial the EditText of the sending data
 
         buttonScan = (Button) findViewById(R.id.buttonScan);					//initial the button for scanning the BLE device
         buttonScan.setOnClickListener(new OnClickListener() {
@@ -73,7 +76,6 @@ public class MainActivity  extends BlunoLibrary {
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
-
 				buttonScanOnClickProcess();										//Alert Dialog for selecting the BLE device
 			}
 		});
@@ -185,6 +187,15 @@ public class MainActivity  extends BlunoLibrary {
 //			}
 //		});
 
+		temperatureTextView = (TextView) findViewById(R.id.textView);
+		temperatureTextView.setText(temperature);
+		humidityTextView = (TextView) findViewById(R.id.textView2);
+		humidityTextView.setText(humidity);
+		dustTextView = (TextView) findViewById(R.id.textView3);
+		dustTextView.setText(dust);
+		vocTextView = (TextView) findViewById(R.id.textView4);
+		vocTextView.setText(voc);
+
 
 	}
 
@@ -198,6 +209,7 @@ public class MainActivity  extends BlunoLibrary {
 	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
 		onActivityResultProcess(requestCode, resultCode, data);					//onActivityResult Process by BlunoLibrary
 		super.onActivityResult(requestCode, resultCode, data);
 	}
@@ -207,12 +219,12 @@ public class MainActivity  extends BlunoLibrary {
         super.onPause();
         onPauseProcess();														//onPause Process by BlunoLibrary
     }
-	
+
 	protected void onStop() {
 		super.onStop();
 		onStopProcess();														//onStop Process by BlunoLibrary
 	}
-    
+
 	@Override
     protected void onDestroy() {
         super.onDestroy();
@@ -246,29 +258,30 @@ public class MainActivity  extends BlunoLibrary {
 	public void onSerialReceived(String receivedString) {							//Once connection data received, this function will be called
 		try{
 
-			String[] sensorData = receivedString.split(",");
+			sensorData = receivedString.split(",");
 			Thread.sleep(1000);
 			updateTextView(sensorData);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 
-		String id = databasePastData.push().getKey();
+//		String id = databasePastData.push().getKey();
 //		PastData pastdata = new PastData(id,sensorData[1],sensorData[2],sensorData[3]);
 //		databasePastData.child(id).setValue(pastdata);
 	}
 
 	public void updateTextView(String[] updates) { //update text view
-		temperatureTextView = (TextView) findViewById(R.id.textView);
-		String temperature = updates[0] + " *C";
+
+		temperature = updates[0];
 		temperatureTextView.setText(temperature);
-		humidityTextView = (TextView) findViewById(R.id.textView2);
-		String humidity = updates[1] + " %";
+		humidity = updates[1];
 		humidityTextView.setText(humidity);
-		dustTextView = (TextView) findViewById(R.id.textView3);
-		dustTextView.setText(updates[2]);
-		vocTextView = (TextView) findViewById(R.id.textView4);
-		vocTextView.setText(updates[3]);
+		dust = updates[2];
+		dustTextView.setText(dust);
+		voc = updates[3];
+		vocTextView.setText(voc);
+
+
 		batteryRemaining = updates[4];
 		filterReplacement = updates[5];
 		deviceState = Integer.parseInt(updates[6]);
@@ -335,6 +348,30 @@ public class MainActivity  extends BlunoLibrary {
 	public void navigateControlView(){
 		Intent intent = new Intent(this, ControlActivity.class);
 		startActivity(intent);
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle savedInstanceState) {
+		super.onSaveInstanceState(savedInstanceState);
+		// Save UI state changes to the savedInstanceState.
+		// This bundle will be passed to onCreate if the process is
+		// killed and restarted.
+		savedInstanceState.putString("temp", temperature);
+		savedInstanceState.putString("humid", humidity);
+		savedInstanceState.putString("dust", dust);
+		savedInstanceState.putString("voc", voc);
+//		savedInstanceState.putString("MyString", "Welcome back to Android");
+	}
+
+	@Override
+	public void onRestoreInstanceState(Bundle savedInstanceState) {
+		super.onRestoreInstanceState(savedInstanceState);
+		// Restore UI state from the savedInstanceState.
+		// This bundle has also been passed to onCreate.
+		temperature = savedInstanceState.getString("temp");
+		humidity = savedInstanceState.getString("humid");
+		dust = savedInstanceState.getString("dust");
+		voc = savedInstanceState.getString("voc");
 	}
 
 }

@@ -30,7 +30,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public abstract class BlunoLibrary  extends Activity {
+public abstract class BlunoLibrary extends Activity{
 
 	private Context mainContext=this;
 
@@ -122,8 +122,10 @@ public abstract class BlunoLibrary  extends Activity {
 		}
 
 
-		Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
-		bindService(gattServiceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
+//		Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
+		Intent gattServiceIntent = new Intent(mainContext, BluetoothLeService.class);
+		mainContext.bindService(gattServiceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
+//		bindService(gattServiceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
         
 		// Initializes list view adapter.
 		mLeDeviceListAdapter = new LeDeviceListAdapter();
@@ -207,34 +209,34 @@ public abstract class BlunoLibrary  extends Activity {
 
     public void onPauseProcess() {
     	System.out.println("BLUNOActivity onPause");
-		scanLeDevice(false);
-		mainContext.unregisterReceiver(mGattUpdateReceiver);
-		mLeDeviceListAdapter.clear();
-    	mConnectionState=connectionStateEnum.isToScan;
-    	onConectionStateChange(mConnectionState);
-		mScanDeviceDialog.dismiss();
-		if(mBluetoothLeService!=null)
-		{
-			mBluetoothLeService.disconnect();
-            mHandler.postDelayed(mDisonnectingOverTimeRunnable, 10000);
-
-//			mBluetoothLeService.close();
-		}
-		mSCharacteristic=null;
+//		scanLeDevice(false);
+//		mainContext.unregisterReceiver(mGattUpdateReceiver);
+//		mLeDeviceListAdapter.clear();
+//    	mConnectionState=connectionStateEnum.isToScan;
+//    	onConectionStateChange(mConnectionState);
+//		mScanDeviceDialog.dismiss();
+//		if(mBluetoothLeService!=null)
+//		{
+//			mBluetoothLeService.disconnect();
+//            mHandler.postDelayed(mDisonnectingOverTimeRunnable, 10000);
+//
+////			mBluetoothLeService.close();
+//		}
+//		mSCharacteristic=null;
 
 	}
 
 	
 	public void onStopProcess() {
 		System.out.println("MiUnoActivity onStop");
-		if(mBluetoothLeService!=null)
-		{
-//			mBluetoothLeService.disconnect();
-//            mHandler.postDelayed(mDisonnectingOverTimeRunnable, 10000);
-        	mHandler.removeCallbacks(mDisonnectingOverTimeRunnable);
-			mBluetoothLeService.close();
-		}
-		mSCharacteristic=null;
+//		if(mBluetoothLeService!=null)
+//		{
+////			mBluetoothLeService.disconnect();
+////            mHandler.postDelayed(mDisonnectingOverTimeRunnable, 10000);
+//        	mHandler.removeCallbacks(mDisonnectingOverTimeRunnable);
+//			mBluetoothLeService.close();
+//		}
+//		mSCharacteristic=null;
 	}
 
 	public void onDestroyProcess() {

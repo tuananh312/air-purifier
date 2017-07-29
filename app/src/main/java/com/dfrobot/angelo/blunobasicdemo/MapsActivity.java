@@ -120,6 +120,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         UniformCostSearch uniformCostSearch = new UniformCostSearch(number_of_vertices);
         distance = uniformCostSearch.uniformCostSearch(adjacencyMatrix,source, destination);
+        System.out.println(distance);
         String route = "";
         route = uniformCostSearch.getPath();
         Log.d("Path check: ", "The optimized path is " + route);
