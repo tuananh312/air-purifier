@@ -3,7 +3,6 @@ package com.dfrobot.angelo.blunobasicdemo;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.app.Application;
 import android.os.Handler;
 import android.os.IBinder;
 import android.annotation.SuppressLint;
@@ -22,6 +21,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,7 +30,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public abstract class BlunoLibrary extends Activity {
+public abstract class BlunoLibrary extends AppCompatActivity {
 
 	private Context mainContext=this;
 

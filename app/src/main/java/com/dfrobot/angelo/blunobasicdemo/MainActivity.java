@@ -20,6 +20,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -35,15 +36,15 @@ import android.widget.ToggleButton;
 
 
 public class MainActivity extends BlunoLibrary {
-	private Button buttonScan;
+	private ImageButton buttonScan;
 	private TextView temperatureTextView;
 	private TextView humidityTextView;
 	private TextView dustTextView;
 	private TextView vocTextView;
 	private TextView airQualityTextView;
-	private Button buttonMap;
-	private Button buttonControl;
-	private Button buttonInfo;
+	private ImageButton buttonMap;
+	private ImageButton buttonControl;
+	private ImageButton buttonInfo;
 	private int airQuality = 0;
 //	private DatabaseReference databasePastData;
 
@@ -61,6 +62,7 @@ public class MainActivity extends BlunoLibrary {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+
 
 
 		if ( ContextCompat.checkSelfPermission( this, Manifest.permission.BLUETOOTH ) != PackageManager.PERMISSION_GRANTED ) {
@@ -84,7 +86,7 @@ public class MainActivity extends BlunoLibrary {
 
         serialBegin(115200);													//set the Uart Baudrate on BLE chip to 115200
 
-        buttonScan = (Button) findViewById(R.id.buttonScan);					//initial the button for scanning the BLE device
+        buttonScan = (ImageButton) findViewById(R.id.buttonScan);					//initial the button for scanning the BLE device
         buttonScan.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -95,7 +97,7 @@ public class MainActivity extends BlunoLibrary {
 		});
 
 		//Navigation to map
-		buttonMap = (Button) findViewById(R.id.buttonMap);
+		buttonMap = (ImageButton) findViewById(R.id.buttonMap);
 		buttonMap.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -107,7 +109,7 @@ public class MainActivity extends BlunoLibrary {
 		});
 
 		//Navigation to controls
-		buttonControl = (Button) findViewById(R.id.buttonControl);
+		buttonControl = (ImageButton) findViewById(R.id.buttonControl);
 		buttonControl.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View view) {
@@ -116,7 +118,7 @@ public class MainActivity extends BlunoLibrary {
 		});
 
 		//Navigation to device info
-		buttonInfo = (Button) findViewById(R.id.button_info);
+		buttonInfo = (ImageButton) findViewById(R.id.button_info);
 		buttonInfo.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View view) {
@@ -197,19 +199,16 @@ public class MainActivity extends BlunoLibrary {
 	public void onConectionStateChange(connectionStateEnum theConnectionState) {//Once connection state changes, this function will be called
 		switch (theConnectionState) {											//Four connection state
 		case isConnected:
-			buttonScan.setText("Connected");
+			Toast.makeText(getApplicationContext(), "Connected", Toast.LENGTH_SHORT).show();
 			break;
 		case isConnecting:
-			buttonScan.setText("Connecting");
+			Toast.makeText(getApplicationContext(), "Connecting", Toast.LENGTH_SHORT).show();
 			break;
 		case isToScan:
-			buttonScan.setText("Scan");
 			break;
 		case isScanning:
-			buttonScan.setText("Scanning");
 			break;
 		case isDisconnecting:
-			buttonScan.setText("isDisconnecting");
 			break;
 		default:
 			break;
