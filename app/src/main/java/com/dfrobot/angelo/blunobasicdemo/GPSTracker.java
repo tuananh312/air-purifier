@@ -1,16 +1,21 @@
 package com.dfrobot.angelo.blunobasicdemo;
 
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.Service;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 /**
@@ -44,8 +49,12 @@ public class GPSTracker extends Service implements LocationListener{
     public GPSTracker(Context context) {
         this.mContext = context;
         getLocation();
+
     }
+
     public Location getLocation() {
+
+
         try {
             locationManager = (LocationManager) mContext
                     .getSystemService(LOCATION_SERVICE);
@@ -57,6 +66,7 @@ public class GPSTracker extends Service implements LocationListener{
             // getting network status
             isNetworkEnabled = locationManager
                     .isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+
 
             if (!isGPSEnabled && !isNetworkEnabled) {
                 // no network provider is enabled
@@ -98,7 +108,7 @@ public class GPSTracker extends Service implements LocationListener{
                 }
             }
 
-        } catch (Exception e) {
+        } catch (SecurityException e) {
             e.printStackTrace();
         }
 

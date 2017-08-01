@@ -1,13 +1,19 @@
 package com.dfrobot.angelo.blunobasicdemo;
-
+import android.*;
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.content.Intent;
 import android.provider.Settings;
+import android.support.annotation.IdRes;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -20,13 +26,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+//import com.google.firebase.database.DataSnapshot;
+//import com.google.firebase.database.DatabaseError;
+//import com.google.firebase.database.DatabaseReference;
+//import com.google.firebase.database.FirebaseDatabase;
+//import com.google.firebase.database.ValueEventListener;
 
-import static android.content.ContentValues.TAG;
 
 
 public class MainActivity extends BlunoLibrary {
@@ -35,21 +40,14 @@ public class MainActivity extends BlunoLibrary {
 	private TextView humidityTextView;
 	private TextView dustTextView;
 	private TextView vocTextView;
+	private TextView airQualityTextView;
 	private Button buttonMap;
 	private Button buttonControl;
-	private DatabaseReference databasePastData;
-	private ToggleButton toggleUVC;
-	private ToggleButton toggleDevice;
-	private RadioGroup fanSpeedRadioGroup;
-	private RadioButton fanspeed1;
-	private RadioButton fanspeed2;
-	private RadioButton fanspeed3;
-	private String batteryRemaining;
-	private String filterReplacement;
-	private int deviceState = 1;
-	private int fanSpeedState = 0;
-	private int UVCState = 0;
-	public static String[] sensorData;
+	private Button buttonInfo;
+	private int airQuality = 0;
+//	private DatabaseReference databasePastData;
+
+	public static String[] sensorData = new String[]{"0","0","0","0","0","0","0","0","0"};
 	private String temperature = "-";
 	private String humidity = "-";
 	private String dust = "-";
@@ -65,8 +63,24 @@ public class MainActivity extends BlunoLibrary {
 		setContentView(R.layout.activity_main);
 
 
-        onCreateProcess();														//onCreate Process by BlunoLibrary
+		if ( ContextCompat.checkSelfPermission( this, Manifest.permission.BLUETOOTH ) != PackageManager.PERMISSION_GRANTED ) {
 
+			ActivityCompat.requestPermissions( this, new String[] {  Manifest.permission.BLUETOOTH },1);
+		}
+
+		if ( ContextCompat.checkSelfPermission( this, Manifest.permission.BLUETOOTH_ADMIN ) != PackageManager.PERMISSION_GRANTED ) {
+
+			ActivityCompat.requestPermissions( this, new String[] {  Manifest.permission.BLUETOOTH_ADMIN },1);
+		}
+		if ( ContextCompat.checkSelfPermission( this, android.Manifest.permission.ACCESS_COARSE_LOCATION ) != PackageManager.PERMISSION_GRANTED ) {
+
+			ActivityCompat.requestPermissions( this, new String[] {  android.Manifest.permission.ACCESS_COARSE_LOCATION  },1);
+		}
+
+
+
+
+        onCreateProcess();														//onCreate Process by BlunoLibrary
 
         serialBegin(115200);													//set the Uart Baudrate on BLE chip to 115200
 
@@ -101,68 +115,14 @@ public class MainActivity extends BlunoLibrary {
 			}
 		});
 
-		//UVC control
-		toggleUVC = (ToggleButton) findViewById(R.id.toggleUVC);
-		toggleUVC.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-			@Override
-			public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-				if (b) {
-					//send data number turn on UVC
-					serialSend("4");
-					Toast.makeText(getApplicationContext(), "Turning on UVC", Toast.LENGTH_SHORT).show();
-				} else {
-					//send data number turn off UVC
-					serialSend("5");
-					Toast.makeText(getApplicationContext(), "Turning off UVC", Toast.LENGTH_SHORT).show();
-				}
-			}
-		});
-
-		//Device control
-		toggleDevice = (ToggleButton) findViewById(R.id.toggleDevice);
-		toggleDevice.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-			@Override
-			public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-				if (b) {
-					//send data number turn on device
-					serialSend("/");
-					Toast.makeText(getApplicationContext(), "Turning on device", Toast.LENGTH_SHORT).show();
-				} else {
-					//send data number turn off device
-					serialSend("0");
-					Toast.makeText(getApplicationContext(), "Turning off device", Toast.LENGTH_SHORT).show();
-				}
-			}
-		});
-
-
-		//Fanspeed control
-		fanspeed1 = (RadioButton) findViewById(R.id.radioButton);
-		fanspeed1.setOnClickListener(new OnClickListener() {
+		//Navigation to device info
+		buttonInfo = (Button) findViewById(R.id.button_info);
+		buttonInfo.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				onRadioButtonClicked(view);
+				navigateInfoView();
 			}
 		});
-
-		fanspeed2 = (RadioButton) findViewById(R.id.radioButton2);
-		fanspeed2.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				onRadioButtonClicked(view);
-			}
-		});
-
-		fanspeed3 = (RadioButton) findViewById(R.id.radioButton3);
-		fanspeed3.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				onRadioButtonClicked(view);
-			}
-		});
-
-		fanSpeedRadioGroup = (RadioGroup) findViewById(R.id.fanSpeedRadioGroup);
-
 
 
 
@@ -195,6 +155,8 @@ public class MainActivity extends BlunoLibrary {
 		dustTextView.setText(dust);
 		vocTextView = (TextView) findViewById(R.id.textView4);
 		vocTextView.setText(voc);
+		airQualityTextView = (TextView) findViewById(R.id.textViewAirQuality);
+		airQualityTextView.setText("-");
 
 
 	}
@@ -258,9 +220,18 @@ public class MainActivity extends BlunoLibrary {
 	public void onSerialReceived(String receivedString) {							//Once connection data received, this function will be called
 		try{
 
-			sensorData = receivedString.split(",");
+			String[] receivedData = receivedString.split(",");
+			if (receivedData[0].equals("A")) {
+				for (int i = 1; i <= 4; i++) {
+					sensorData[i-1] = receivedData[i];
+				}
+				updateTextView(sensorData);
+			} else if (receivedData[0].equals("B")) {
+				for (int i = 1; i <= 5; i++) {
+					sensorData[i+3] = receivedData[i];
+				}
+			}
 			Thread.sleep(1000);
-			updateTextView(sensorData);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -272,73 +243,28 @@ public class MainActivity extends BlunoLibrary {
 
 	public void updateTextView(String[] updates) { //update text view
 
-		temperature = updates[0];
+		temperature = updates[1];
 		temperatureTextView.setText(temperature);
-		humidity = updates[1];
+		humidity = updates[2];
 		humidityTextView.setText(humidity);
-		dust = updates[2];
+		dust = updates[3];
 		dustTextView.setText(dust);
-		voc = updates[3];
+		voc = updates[4];
 		vocTextView.setText(voc);
 
-
-		batteryRemaining = updates[4];
-		filterReplacement = updates[5];
-		deviceState = Integer.parseInt(updates[6]);
-		fanSpeedState = Integer.parseInt(updates[7]);
-		UVCState = Integer.parseInt(updates[8]);
-
-		if (fanSpeedState == 0) {
-			fanspeed1.setChecked(true);
-		} else if (fanSpeedState == 1) {
-			fanspeed2.setChecked(true);
-		} else if (fanSpeedState == 2){
-			fanspeed3.setChecked(true);
+		int dustComponent = calculateDustAirQuality(Integer.parseInt(dust));
+		int vocComponent = calculateVOCAirQuality(Integer.parseInt(voc));
+		if (dustComponent >= vocComponent){
+			airQuality = dustComponent;
+		} else {
+			airQuality = vocComponent;
 		}
-
-		if(deviceState == 1) {
-			toggleDevice.setChecked(true);
-		} else if (deviceState == 0) {
-			toggleDevice.setChecked(false);
-		}
-
-		if(UVCState == 1) {
-			toggleUVC.setChecked(true);
-		} else if (UVCState == 0) {
-			toggleUVC.setChecked(false);
-		}
+		airQualityTextView.setText(Integer.toString(airQuality));
 
 
 	}
 
-	public void onRadioButtonClicked(View view) {
-		// Is the button now checked?
-		boolean checked = ((RadioButton) view).isChecked();
 
-		// Check which radio button was clicked
-		switch(view.getId()) {
-			case R.id.radioButton:
-				if (checked)
-					// Fanspeed Auto
-					serialSend("1");
-					Toast.makeText(getApplicationContext(), "Fanspeed Auto", Toast.LENGTH_SHORT).show();
-					break;
-
-			case R.id.radioButton2:
-				if (checked)
-					// Fanspeed Slow
-					serialSend("2");
-					Toast.makeText(getApplicationContext(), "Fanspeed Slow", Toast.LENGTH_SHORT).show();
-					break;
-
-			case R.id.radioButton3:
-				if (checked)
-					// Fanspeed High
-					serialSend("3");
-					Toast.makeText(getApplicationContext(), "Fanspeed Fast", Toast.LENGTH_SHORT).show();
-					break;
-		}
-	}
 
 
 	public void navigateMapView(){
@@ -347,6 +273,17 @@ public class MainActivity extends BlunoLibrary {
 	}
 	public void navigateControlView(){
 		Intent intent = new Intent(this, ControlActivity.class);
+		startActivity(intent);
+	}
+
+	public void navigateInfoView(){
+		Intent intent = new Intent(this, InfoActivity.class);
+		startActivity(intent);
+
+	}
+
+	public void navigateHomeView(){
+		Intent intent = new Intent(this, MainActivity.class);
 		startActivity(intent);
 	}
 
@@ -372,6 +309,60 @@ public class MainActivity extends BlunoLibrary {
 		humidity = savedInstanceState.getString("humid");
 		dust = savedInstanceState.getString("dust");
 		voc = savedInstanceState.getString("voc");
+	}
+
+	public int calculateDustAirQuality(int dust){
+		int ij;
+		int ij1;
+		int xj;
+		int xj1;
+
+		int result=0;
+		if (0 <= dust && dust <= 12) {
+			ij = 0; ij1 = 50; xj = 0; xj1 = 12;
+		} else if (dust <= 55) {
+			ij = 50; ij1 = 100; xj = 13; xj1 = 55;
+		} else if (dust <= 150) {
+			ij = 100; ij1 = 200; xj = 56; xj1 = 150;
+		} else if (dust <= 250) {
+			ij = 200; ij1 = 300; xj = 151; xj1 = 250;
+		} else if (dust <= 350) {
+			ij = 300; ij1 = 400; xj = 251; xj1 = 350;
+		} else if (dust <= 500) {
+			ij = 400; ij1 = 500; xj = 351; xj1 = 500;
+		} else {
+			return 600;
+		}
+
+		result = Math.round(((ij1 - ij)*(dust-xj)/(xj1-xj)) + ij);
+
+		return result;
+
+	}
+
+	public int calculateVOCAirQuality(int voc){
+		int ij;
+		int ij1;
+		int xj;
+		int xj1;
+
+		int result=0;
+		if (0 <= voc && voc <= 200) {
+			ij = 0; ij1 = 50; xj = 0; xj1 = 200;
+		} else if (voc <= 350) {
+			ij = 50; ij1 = 100; xj = 201; xj1 = 350;
+		} else if (voc <= 500) {
+			ij = 100; ij1 = 250; xj = 351; xj1 = 500;
+		} else if (voc <= 757) {
+			ij = 250; ij1 = 400; xj = 501; xj1 = 757;
+		} else {
+			return 500;
+		}
+
+		result = Math.round(((ij1 - ij)*(voc-xj)/(xj1-xj)) + ij);
+
+		return result;
+
 	}
 
 }

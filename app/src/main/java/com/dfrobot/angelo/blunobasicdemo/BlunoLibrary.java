@@ -30,7 +30,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public abstract class BlunoLibrary extends Activity{
+public abstract class BlunoLibrary extends Activity {
 
 	private Context mainContext=this;
 
